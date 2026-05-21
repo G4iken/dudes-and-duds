@@ -1381,7 +1381,7 @@ function renderProducts(products) {
         <div class="p-emoji">${p.emoji || '👕'}</div>
         ${p.badge ? `<span class="p-badge badge-${p.badge}">${p.badge_text || p.badge}</span>` : ''}
         <div class="p-acts">
-          <button class="p-add" ${isSoldOut?'disabled':''} onclick="handleAdd(event,${p.id})">${isSoldOut?'Sold Out':'Add to Cart'}</button>
+         <button class="p-add" ${isSoldOut?'disabled':''} onclick="handleQv(event,${p.id})">${isSoldOut?'Sold Out':'Add to Cart'}</button>
           <button class="p-qv"  onclick="handleQv(event,${p.id})" title="Quick View">👁</button>
           <button class="p-wish" onclick="handleWish(event,this,${p.id})" title="Wishlist">♡</button>
         </div>
