@@ -869,13 +869,23 @@ const BASE_URL = (window.__DND_CONFIG__ && window.__DND_CONFIG__.API_BASE)
   : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:5000/api'
     : '/api';
+// ── SAFE JSON PARSE ───────────────────────────────────
+function safeJSONParse(value, fallback) {
+  try {
+    if (!value || value === 'undefined' || value === 'null') return fallback;
+    return JSON.parse(value);
+  } catch (error) {
+    return fallback;
+  }
+}
 
 // ── AUTH STATE ────────────────────────────────────────
 let authToken = localStorage.getItem('dnd_token') || null;
-let authUser  = JSON.parse(localStorage.getItem('dnd_user') || 'null');
+let authUser = safeJSONParse(localStorage.getItem('dnd_user'), null);
 
 // Local cart (used even before auth; merges on login)
-let localCart = JSON.parse(localStorage.getItem('dnd_cart') || '[]');
+let localCart = safeJSONParse(localStorage.getItem('dnd_cart'), []);
+
 // discount
 let appliedDiscount = null;
 
