@@ -1,12 +1,12 @@
 require('dotenv').config();
-const mysql  = require('mysql2/promise');
+const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 
 async function seed() {
   const conn = await mysql.createConnection({
-    host:     process.env.DB_HOST,
-    port:     parseInt(process.env.DB_PORT) || 3306,
-    user:     process.env.DB_USER,
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     multipleStatements: true,
@@ -102,18 +102,21 @@ async function seed() {
     ('FLAT150',  'fixed',  150.00, 1500.00, NULL, DATE_ADD(NOW(), INTERVAL 1 YEAR));
   `);
 
-  // ─── SAMPLE APPROVED REVIEWS
-  await conn.query(`
-    INSERT IGNORE INTO reviews (product_id, name, location, rating, body, verified, approved)
-    SELECT p.id, r.name, r.loc, r.rating, r.body, 1, 1
-    FROM products p
-    JOIN (
-      SELECT 'DND-001' sku,'Miguel R.'   name,'Makati City'  loc,5,'Finally a brand that gets it. Oversized tee fits exactly right. Fabric is thick and premium. Worth every peso.'   body UNION ALL
-      SELECT 'DND-002','Josh D.','Quezon City',5,'Ordered the hoodie — arrived in 2 days. Packaging fire, quality 🔥. So comfortable I haven\\'t taken it off.'                        UNION ALL
-      SELECT 'DND-004','Kyle C.','Cebu City',  5,'Cap is my daily driver now. Clean, minimal, goes with everything. Best purchase this year.'
-    ) r ON p.sku = r.sku;
-  `);
-
+  await pool.query(`
+  INSERT IGNORE INTO reviews (product_id, name, location, rating, body, verified, approved)
+  SELECT p.id, r.name, r.loc, r.rating, r.body, 1, 1
+  FROM products p
+  JOIN (
+    SELECT 'DND-001' AS sku, 'Miguel R.' AS name, 'Makati City' AS loc, 5 AS rating,
+           'Finally a brand that gets it. Oversized tee fits exactly right. Fabric is thick and premium. Worth every peso.' AS body
+    UNION ALL
+    SELECT 'DND-002' AS sku, 'Josh D.' AS name, 'Quezon City' AS loc, 5 AS rating,
+           'Ordered the hoodie — arrived in 2 days. Packaging fire, quality is great. So comfortable I haven\\'t taken it off.' AS body
+    UNION ALL
+    SELECT 'DND-004' AS sku, 'Kyle C.' AS name, 'Cebu City' AS loc, 5 AS rating,
+           'Cap is my daily driver now. Clean, minimal, goes with everything. Best purchase this year.' AS body
+  ) r ON p.sku = r.sku;
+`);
   await conn.end();
   console.log('✅ Seed complete. Admin: admin@dudesandduds.ph / Admin@DnD2025!');
 }
