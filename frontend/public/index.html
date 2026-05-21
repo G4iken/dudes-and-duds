@@ -1012,16 +1012,19 @@ document.querySelectorAll('.auth-tab').forEach(tab => {
 document.getElementById('loginForm').onsubmit = async (e) => {
   e.preventDefault();
   const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginError');
-  btn.disabled = true; btn.textContent = 'Logging in…'; err.textContent = '';
+  const errEl = document.getElementById('loginError');
+  btn.disabled = true; btn.textContent = 'Logging in…'; errEl.textContent = '';
   try {
     const data = await api('/auth/login', {
       method: 'POST',
       body: JSON.stringify({
-        email:    document.getElementById('loginEmail').value,
+        email:    document.getElementById('loginEmail').value.trim(),
         password: document.getElementById('loginPassword').value,
       }),
     });
+    if (!data || !data.user || !data.token) {
+      throw new Error('Backend not connected. Check Railway deploy & ALLOWED_ORIGINS.');
+    }
     authToken = data.token;
     authUser  = data.user;
     localStorage.setItem('dnd_token', authToken);
@@ -1032,7 +1035,12 @@ document.getElementById('loginForm').onsubmit = async (e) => {
     await syncCartToServer();
     await renderServerCart();
   } catch (err2) {
-    err.textContent = err2.message;
+    const msg = err2.message || '';
+    if (msg.includes('fetch') || msg.includes('NetworkError') || msg.includes('Failed to fetch')) {
+      errEl.textContent = '⚠️ Cannot reach server. Check your Railway backend is running.';
+    } else {
+      errEl.textContent = msg;
+    }
   } finally {
     btn.disabled = false; btn.textContent = 'Log In';
   }
@@ -1042,17 +1050,20 @@ document.getElementById('loginForm').onsubmit = async (e) => {
 document.getElementById('registerForm').onsubmit = async (e) => {
   e.preventDefault();
   const btn = document.getElementById('registerBtn');
-  const err = document.getElementById('regError');
-  btn.disabled = true; btn.textContent = 'Creating account…'; err.textContent = '';
+  const errEl = document.getElementById('regError');
+  btn.disabled = true; btn.textContent = 'Creating account…'; errEl.textContent = '';
   try {
     const data = await api('/auth/register', {
       method: 'POST',
       body: JSON.stringify({
-        name:     document.getElementById('regName').value,
-        email:    document.getElementById('regEmail').value,
+        name:     document.getElementById('regName').value.trim(),
+        email:    document.getElementById('regEmail').value.trim(),
         password: document.getElementById('regPassword').value,
       }),
     });
+    if (!data || !data.user || !data.token) {
+      throw new Error('Backend not connected. Check Railway deploy & ALLOWED_ORIGINS.');
+    }
     authToken = data.token;
     authUser  = data.user;
     localStorage.setItem('dnd_token', authToken);
@@ -1062,7 +1073,12 @@ document.getElementById('registerForm').onsubmit = async (e) => {
     showToast('🎉', `Welcome to Dudes & Duds, ${authUser.name.split(' ')[0]}!`);
     await syncCartToServer();
   } catch (err2) {
-    err.textContent = err2.message;
+    const msg = err2.message || '';
+    if (msg.includes('fetch') || msg.includes('NetworkError') || msg.includes('Failed to fetch')) {
+      errEl.textContent = '⚠️ Cannot reach server. Check your Railway backend is running.';
+    } else {
+      errEl.textContent = msg;
+    }
   } finally {
     btn.disabled = false; btn.textContent = 'Create Account';
   }
