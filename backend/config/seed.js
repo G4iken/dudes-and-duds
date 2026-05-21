@@ -102,7 +102,7 @@ async function seed() {
     ('FLAT150',  'fixed',  150.00, 1500.00, NULL, DATE_ADD(NOW(), INTERVAL 1 YEAR));
   `);
 
-  await pool.query(`
+  await conn.query(`
   INSERT IGNORE INTO reviews (product_id, name, location, rating, body, verified, approved)
   SELECT p.id, r.name, r.loc, r.rating, r.body, 1, 1
   FROM products p
