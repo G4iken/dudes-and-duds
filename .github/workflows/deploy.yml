@@ -5,23 +5,11 @@ on:
     branches: [main]
 
 jobs:
-  # ── BACKEND: trigger Railway redeploy on push ──────────────────
-  deploy-backend:
-    name: Deploy Backend → Railway
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Railway Deploy
-        run: |
-          curl -X POST "${{ secrets.RAILWAY_DEPLOY_WEBHOOK }}" \
-            -H "Content-Type: application/json" \
-            --fail
-        # To get this webhook:
-        # Railway dashboard → your service → Settings → Deploy Hooks → Generate
-
   # ── FRONTEND: deploy to Vercel on push ────────────────────────
   deploy-frontend:
-    name: Deploy Frontend → Vercel
+    name: Deploy Frontend to Vercel
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -43,5 +31,5 @@ jobs:
           vercel deploy --prebuilt --prod \
             --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          VERCEL_ORG_ID:     ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

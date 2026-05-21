@@ -27,3 +27,6 @@ backend/uploads/
 dist/
 build/
 .vercel/
+
+.vercel
+.env*.local
