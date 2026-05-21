@@ -1,0 +1,13 @@
+{
+  "name": "dudes-and-duds-frontend",
+  "version": "1.0.0",
+  "description": "Dudes & Duds E-commerce Frontend",
+  "scripts": {
+    "dev": "npx serve public -p 3000",
+    "build": "echo 'Static site — no build step needed'",
+    "start": "npx serve public -p 3000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.3"
+  }
+}
