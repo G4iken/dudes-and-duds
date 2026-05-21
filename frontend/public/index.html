@@ -3587,8 +3587,7 @@
     // CART
     // ══════════════════════════════════════════════════════
     function openCart() {
-      if (authUser) renderServerCart();
-      else renderLocalCart();
+      renderLocalCart();
       document.getElementById('cartOverlay').classList.add('open');
       document.getElementById('cartDrawer').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -3754,46 +3753,30 @@
 
     // ── ADD TO CART ───────────────────────────────────────
     async function addToCart(product, variantId, size, color) {
-      const cartKey = variantId || `product-${product.id}`;
+  const cartKey = variantId || `product-${product.id}`;
 
-      if (authUser && variantId && !String(variantId).startsWith('product-')) {
-        try {
-          await api('/cart', {
-            method: 'POST',
-            body: JSON.stringify({ variant_id: variantId, quantity: 1 }),
-          });
+  const ex = localCart.find(i => String(i.variant_id) === String(cartKey));
 
-          showToast('🛍️', product.name + ' added to cart!');
-          renderServerCart();
-          return;
-        } catch (e) {
-          showToast('❌', e.message);
-          return;
-        }
-      }
+  if (ex) {
+    ex.qty++;
+  } else {
+    localCart.push({
+      variant_id: cartKey,
+      product_id: product.id,
+      qty: 1,
+      price: product.price,
+      product_name: product.name,
+      p_emoji: product.emoji,
+      size: size || 'M',
+      color: color || null,
+    });
+  }
 
-      const ex = localCart.find(i => String(i.variant_id) === String(cartKey));
-
-      if (ex) {
-        ex.qty++;
-      } else {
-        localCart.push({
-          variant_id: cartKey,
-          product_id: product.id,
-          qty: 1,
-          price: product.price,
-          product_name: product.name,
-          p_emoji: product.emoji,
-          size: size || 'M',
-          color: color || null,
-        });
-      }
-
-      localStorage.setItem('dnd_cart', JSON.stringify(localCart));
-      renderLocalCart();
-      updateCartBadge(localCart.reduce((s, i) => s + Number(i.qty || 1), 0));
-      showToast('🛍️', product.name + ' added to cart!');
-    }
+  localStorage.setItem('dnd_cart', JSON.stringify(localCart));
+  renderLocalCart();
+  updateCartBadge(localCart.reduce((s, i) => s + Number(i.qty || 1), 0));
+  showToast('🛍️', product.name + ' added to cart!');
+}
 
     // ── DISCOUNT CODE ─────────────────────────────────────
     document.getElementById('discountApplyBtn').onclick = async () => {
